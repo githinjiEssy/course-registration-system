@@ -5,7 +5,10 @@ function Register() {
         <div className="register">
             <div className="register_container">
                 <div className="register_left">
-                    <h1>Hello</h1>
+                    <h1 className="left_title">USIU Course Registration Portal</h1>
+                    <p>
+                        Register, select lecturers, and stay on track with your academic progress, anywhere, anytime.
+                    </p>
                 </div>
 
                 <div className="register_right">

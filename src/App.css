@@ -4,7 +4,6 @@
   padding: 2rem;
   text-align: center;
   width: 100vw;
-  height: 100vh;
 }
 
 .register{
@@ -24,11 +23,41 @@
   gap: 20px;
 }
 
-.register_left{
+.register_left {
   width: 40%;
   border-radius: 20px;
   background-color: rgb(85, 26, 26);
+  background-image: url(./assets/left.jpeg);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  color: white;
+  overflow: hidden;
 }
+
+.register_left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+  border-radius: 20px;
+}
+
+.left_title{
+  position: relative;
+  z-index: 1;
+  font-size: 2.5rem;
+}
+
+.left_desc {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 80%;
+  color: #ddd;
+  z-index: 1;
+}
+
 
 .register_right{
   width: 60%;
