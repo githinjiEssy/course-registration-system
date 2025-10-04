@@ -6,7 +6,7 @@
   width: 100vw;
 }
 
-.register{
+.authentication{
   background-color: #9a231b;
   width: 70vw;
   height: 80vh;
@@ -16,14 +16,14 @@
   padding: 20px;
 }
 
-.register_container{
+.auth_container{
   height: 100%;
   display: flex;
   justify-content: space-between;
   gap: 20px;
 }
 
-.register_left {
+.auth_left {
   width: 40%;
   border-radius: 20px;
   background-color: rgb(85, 26, 26);
@@ -35,7 +35,7 @@
   overflow: hidden;
 }
 
-.register_left::before {
+.auth_left::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -53,22 +53,17 @@
 .left_desc {
   font-size: 1.1rem;
   line-height: 1.6;
-  max-width: 80%;
   color: #ddd;
   z-index: 1;
 }
 
 
-.register_right{
+.auth_right{
   width: 60%;
   color: #000000;
 }
 
-.right_title{
-  box-shadow: #2c2c2c;
-}
-
-.registration_form{
+.registration_form, .login_form{
   display: flex;
   flex-direction: column;
   place-items: center;
@@ -115,7 +110,7 @@
   border: 2px solid #2c2c2c;
 }
 
-.register_btn {
+#btn{
   width: 50%;
   padding: 15px;
   border-radius: 5px;
@@ -127,7 +122,7 @@
   transition: all 0.3s ease;
 }
 
-.register_btn:hover {
+#btn:hover {
   background-color: #dc9898;
   color: #000000;
   outline: #310300 solid 2px;

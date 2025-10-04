@@ -6,7 +6,7 @@ function Register() {
             <div className="register_container">
                 <div className="register_left">
                     <h1 className="left_title">USIU Course Registration Portal</h1>
-                    <p>
+                    <p className="left_desc">
                         Register, select lecturers, and stay on track with your academic progress, anywhere, anytime.
                     </p>
                 </div>
@@ -44,7 +44,7 @@ function Register() {
                     </form>
 
                     <div>
-                        <p>Already have an account? <a href="#">Login</a></p>
+                        <p>Already have an account? <a href="/login">Login</a></p>
                     </div>
                 </div>
             </div>
