@@ -3,5 +3,106 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  width: 100vw;
+  height: 100vh;
 }
+
+.register{
+  background-color: #9a231b;
+  width: 70vw;
+  height: 80vh;
+  border-radius: 20px;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
+  margin: auto;
+  padding: 20px;
+}
+
+.register_container{
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.register_left{
+  width: 40%;
+  border-radius: 20px;
+  background-color: rgb(85, 26, 26);
+}
+
+.register_right{
+  width: 60%;
+  color: #000000;
+}
+
+.right_title{
+  box-shadow: #2c2c2c;
+}
+
+.registration_form{
+  display: flex;
+  flex-direction: column;
+  place-items: center;
+  gap: 30px;
+  padding: 20px;
+}
+
+.input_group{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 2px;
+  width: 80%;
+}
+
+.input_field{
+  padding: 15px;
+  border-radius: 5px;
+  border: none;
+  background-color: rgb(103, 32, 27, 0.6);
+}
+
+.input_group label{
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  font-size: 15px;
+  color: grey;
+  transition: 0.3s ease-in-out;
+}
+
+.input_field:focus + label,
+.input_field:not(:placeholder-shown) + label{
+  top: -10px;
+  left: 10px;
+  font-size: 12px;
+  color: #ffffff;
+  background-color: #9a231b;
+  padding: 0 5px;
+}
+.input_field:focus{
+  outline: none;
+  border: 2px solid #2c2c2c;
+}
+
+.register_btn {
+  width: 50%;
+  padding: 15px;
+  border-radius: 5px;
+  border: none;
+  background-color: #660B05;
+  font-size: 16px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.register_btn:hover {
+  background-color: #dc9898;
+  color: #000000;
+  outline: #310300 solid 2px;
+}
+
+
 
