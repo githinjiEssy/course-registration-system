@@ -17,12 +17,12 @@ function Sidebar({ role }) {
 
             <div className="sidebar_menu">
                 <ul className='sidebar_list'>
-                    <li className='list_item'><a href="#"><BiSolidDashboard />Dashboard</a></li>
+                    <li className='list_item'><a href="/"><BiSolidDashboard />Dashboard</a></li>
 
                     {/* Student specific links */}
                     {role === "student" && (
                         <>
-                            <li className='list_item'><a href="#"><MdOutlineAppRegistration/>Register Courses</a></li>
+                            <li className='list_item'><a href="/course_registration"><MdOutlineAppRegistration/>Register Courses</a></li>
                             <li className='list_item'><a href="#"><ImBooks/>My Courses</a></li>
                         </>
                     )}

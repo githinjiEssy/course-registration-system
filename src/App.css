@@ -485,3 +485,185 @@
   position: absolute;
   left: 10px;
 }
+
+/* =========================================================================================================== */
+/* Course registration */
+.course-registration_main {
+  width: 80%;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.course-registration_main h2 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  background: linear-gradient(to right, #9a231b, #660b05);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Grid layout for course_info */
+.course_info {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+/* Left Panel */
+.left_panel {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Right Panel */
+.right_panel {
+  position: sticky;
+  top: 30px;
+  height: fit-content;
+}
+
+/* Card Styling */
+.student_info_display,
+.course_selection_section,
+.registration_summary {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.student_info_display:hover,
+.course_selection_section:hover,
+.registration_summary:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Section Headers */
+.student_info_display h3,
+.course_selection_section h3,
+.registration_summary h3 {
+  color: #660b05;
+  margin-bottom: 15px;
+}
+
+/* Student Info Grid */
+.student_info_display {
+  background: linear-gradient(to bottom right, #fff8f7, #ffffff);
+  border-left: 6px solid #9a231b;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.student_info_display:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.student_info_display h3 {
+  color: #9a231b;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student_info_grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.info_row {
+  background-color: #fdf4f3;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #f0d6d3;
+}
+
+/* Course Form */
+.course_form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.course_row {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.form_group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form_group label {
+  font-weight: 600;
+  color: #660b05;
+  margin-bottom: 5px;
+}
+
+.form_group select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+/* Button */
+.register_btn {
+  align-self: flex-start;
+  padding: 10px 20px;
+  background-color: #9a231b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.register_btn:hover {
+  background-color: #7c1a13;
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Summary List */
+.summary_box ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.summary_box li {
+  margin-bottom: 5px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .course_info {
+    grid-template-columns: 1fr;
+  }
+
+  .right_panel {
+    position: static;
+    margin-top: 20px;
+  }
+
+  .course_row {
+    flex-direction: column;
+  }
+}

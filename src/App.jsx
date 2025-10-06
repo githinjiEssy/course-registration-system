@@ -6,6 +6,7 @@ import LoginForm from './components/LoginForm'
 import StudentDashboard from './components/Dashboard/StudentDashboard'
 import InstructorDashboard from './components/Dashboard/InstructorDashboard'
 import Sidebar from './components/Sidebar'
+import CourseRegistration from './components/Dashboard/CourseRegistration'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path='/instructor' element={<InstructorDashboard/>}/> */}
         {/* <Route path='/' element={<Sidebar/>}/> */}
         <Route path='/' element={<StudentDashboard/>}/>
+        <Route path='/course_registration' element={<CourseRegistration/>}/>
       </Routes>
     </BrowserRouter>
   )
