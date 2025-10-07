@@ -7,19 +7,20 @@ import StudentDashboard from './components/Dashboard/StudentDashboard'
 import InstructorDashboard from './components/Dashboard/InstructorDashboard'
 import Sidebar from './components/Sidebar'
 import CourseRegistration from './components/Dashboard/CourseRegistration'
+import MyCourses from './components/Dashboard/MyCourses'
 
 function App() {
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* <Route path='/' element={<RegisterForm />} />
+        <Route path='/' element={<RegisterForm />} />
         <Route path='/login' element={<LoginForm />} />
+        
         <Route path='/student' element={<StudentDashboard/>}/>
-        <Route path='/instructor' element={<InstructorDashboard/>}/> */}
-        {/* <Route path='/' element={<Sidebar/>}/> */}
-        <Route path='/' element={<StudentDashboard/>}/>
+        <Route path='/instructor' element={<InstructorDashboard/>}/>
         <Route path='/course_registration' element={<CourseRegistration/>}/>
+        <Route path='/my_courses' element={<MyCourses />} />
       </Routes>
     </BrowserRouter>
   )

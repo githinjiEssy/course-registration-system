@@ -17,19 +17,21 @@ function Sidebar({ role }) {
 
             <div className="sidebar_menu">
                 <ul className='sidebar_list'>
-                    <li className='list_item'><a href="/"><BiSolidDashboard />Dashboard</a></li>
+                    {/* <li className='list_item'><a href="/"><BiSolidDashboard />Dashboard</a></li> */}
 
                     {/* Student specific links */}
                     {role === "student" && (
                         <>
+                            <li className='list_item'><a href="/student"><BiSolidDashboard />Dashboard</a></li>
                             <li className='list_item'><a href="/course_registration"><MdOutlineAppRegistration/>Register Courses</a></li>
-                            <li className='list_item'><a href="#"><ImBooks/>My Courses</a></li>
+                            <li className='list_item'><a href="my_courses"><ImBooks/>My Courses</a></li>
                         </>
                     )}
 
                     {/* Instructor specific links */}
                     {role === "instructor" && (
                         <>
+                            <li className='list_item'><a href="/instructor"><BiSolidDashboard />Dashboard</a></li>
                             <li className='list_item'><a href="#"><ImBooks/>Assigned Courses</a></li>
                             <li className='list_item'><a href="#"><IoIosListBox/>Student List</a></li>
                         </>
