@@ -32,7 +32,8 @@ function Sidebar({ role }) {
                     {role === "instructor" && (
                         <>
                             <li className='list_item'><a href="/instructor"><BiSolidDashboard />Dashboard</a></li>
-                            <li className='list_item'><a href="#"><ImBooks/>Assigned Courses</a></li>
+                            <li className='list_item'><a href="/lecturer_course_registration"><MdOutlineAppRegistration/>Register Courses</a></li>
+                            <li className='list_item'><a href="/assigned_courses"><ImBooks/>Assigned Courses</a></li>
                             <li className='list_item'><a href="#"><IoIosListBox/>Student List</a></li>
                         </>
                     )}
