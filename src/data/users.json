@@ -1,0 +1,21 @@
+{
+  "students": [
+    {
+      "firstName": "John",
+      "lastName": "Doe",
+      "idNumber": "APT123",
+      "email": "student@usiu.ac.ke",
+      "password": "12345",
+      "role": "student"
+    }
+  ],
+  "lecturers": [
+    {
+      "firstName": "Peter",
+      "lastName": "Kamau",
+      "email": "lecturer@usiu.ac.ke",
+      "password": "12345",
+      "role": "instructor"
+    }
+  ]
+}

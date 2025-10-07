@@ -37,7 +37,6 @@ function Sidebar({ role }) {
                         </>
                     )}
 
-                    <li className='list_item'><a href="#"><CgProfile/>Profile</a></li>
                     <li className='list_item'><a href="#"><BiLogOut/>Logout</a></li>
                 </ul>
             </div>
