@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import { IoNotifications, IoSearch } from "react-icons/io5";
 import profilePic from "../../assets/profile1.jpeg";
@@ -7,6 +7,26 @@ import { MdTimelapse } from "react-icons/md";
 import { GrScorecard } from "react-icons/gr";
 
 function StudentDashboard() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+    if (!loggedInUser) {
+      // If no user, redirect to login
+      window.location.href = "/login";
+    } else {
+      setUser(loggedInUser);
+    }
+  }, []);
+
+  if (!user) {
+    return (
+      <div className="loading">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard">
       <div className="dashboard_container">
@@ -31,7 +51,7 @@ function StudentDashboard() {
 
               <div className="user_profile">
                 <img src={profilePic} alt="User Profile" className="user_image" />
-                <span className="user_name">John Doe</span>
+                <span className="user_name">{user.firstName} {user.lastName}</span>
               </div>
             </div>
           </div>
@@ -41,7 +61,7 @@ function StudentDashboard() {
             <div className="main-content_left">
               {/* Banner Section */}
               <div className="dashboard_banner">
-                <h2>🎓 Welcome Back, John!</h2>
+                <h2>🎓 Welcome Back, {user.firstName}!</h2>
                 <p>Keep pushing forward — you're doing great this semester!</p>
               </div>
 
@@ -50,7 +70,7 @@ function StudentDashboard() {
                 <div className="summary_card">
                   <div className="card_header">
                     <span className="card_icon"><ImBooks /></span>
-                    <h3>Registerd Courses</h3>
+                    <h3>Registered Courses</h3>
                   </div>
                   <p className="card_description">You're enrolled in 5 active courses this semester</p>
                   <button className="card_button">View Courses</button>

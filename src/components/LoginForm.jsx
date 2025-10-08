@@ -1,85 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "./AuthLayout";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import usersData from "../data/users.json"; 
+import usersData from "../data/users.json";
 
 function LoginForm() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ 
-    email: "", 
-    password: "", 
-    role: "" 
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    role: "",
   });
+
+  // ✅ Auto redirect if user is already logged in
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+    if (loggedInUser) {
+      navigate(loggedInUser.role === "student" ? "/student" : "/instructor");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Validate role selection
     if (!formData.role) {
-      toast.error("⚠️ Please select your role.", {
-        position: "top-center",
-        autoClose: 2000,
-      });
+      toast.error("⚠️ Please select your role.", { position: "top-center" });
       return;
     }
 
-    // Debug: Check if usersData is loaded correctly
-    console.log("usersData:", usersData);
-    console.log("Selected role:", formData.role);
+    let foundUser = null;
 
-    // Safely get users based on selected role
-    let userGroup;
     if (formData.role === "student") {
-      userGroup = usersData?.students || [];
-    } else if (formData.role === "instructor") {
-      userGroup = usersData?.lecturers || []; // Make sure this matches your JSON
+      // ✅ Check students from localStorage
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+      foundUser = students.find(
+        (student) =>
+          student.email.toLowerCase() === formData.email.toLowerCase() &&
+          student.password === formData.password
+      );
     } else {
-      toast.error("⚠️ Invalid role selected.", {
-        position: "top-center",
-        autoClose: 2000,
-      });
-      return;
+      // ✅ Check lecturers from JSON file
+      foundUser = usersData.lecturers.find(
+        (lecturer) =>
+          lecturer.email.toLowerCase() === formData.email.toLowerCase() &&
+          lecturer.password === formData.password
+      );
     }
-
-    // Check if userGroup is valid
-    if (!Array.isArray(userGroup) || userGroup.length === 0) {
-      toast.error("⚠️ No users found for this role.", {
-        position: "top-center",
-        autoClose: 2000,
-      });
-      return;
-    }
-
-    const foundUser = userGroup.find(
-      (user) => user.email === formData.email && user.password === formData.password 
-    );
 
     if (!foundUser) {
-      toast.error("⚠️ Invalid email or password.", {
-        position: "top-center",
-        autoClose: 2000,
-      });
+      toast.error("⚠️ Invalid email or password.", { position: "top-center" });
       return;
     }
 
+    // ✅ Save logged in user
     localStorage.setItem("user", JSON.stringify(foundUser));
-    toast.success(`Welcome ${foundUser.firstName}`, {
+
+    toast.success(`Welcome ${foundUser.firstName}!`, {
       position: "top-center",
       autoClose: 2000,
     });
 
     setTimeout(() => {
-      if (foundUser.role === "student") {
-        navigate("/student");
-      } else if (foundUser.role === "instructor") {
-        navigate("/instructor");
-      }
+      navigate(foundUser.role === "student" ? "/student" : "/instructor");
     }, 2000);
   };
 
@@ -115,7 +102,6 @@ function LoginForm() {
           <label>Password</label>
         </div>
 
-        {/* Role Dropdown */}
         <div className="input_group">
           <select
             name="role"
@@ -126,16 +112,21 @@ function LoginForm() {
           >
             <option value="">Select Role</option>
             <option value="student">Student</option>
-            <option value="instructor">Lecturer</option>
+            <option value="instructor">Lecturer/Admin</option>
           </select>
           <label>User Role</label>
         </div>
 
-        <button type="submit" id="btn">Login</button>
+        <button type="submit" id="btn">
+          Login
+        </button>
       </form>
 
       <p>
-        Don't have an account? <a href="/">Register</a>
+        Student? <a href="/">Create Account</a>
+      </p>
+      <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '5px' }}>
+        Lecturers: Use your predefined admin credentials
       </p>
 
       <ToastContainer />

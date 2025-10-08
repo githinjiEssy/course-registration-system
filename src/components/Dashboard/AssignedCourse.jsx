@@ -1,31 +1,38 @@
 import React from "react";
 import Sidebar from "../Sidebar";
 import { FaBookOpen, FaUsers, FaClock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function AssignedCourses() {
+  const navigate = useNavigate();
+
   const assignedCourses = [
     {
       code: "APT301",
       title: "Web Application Development",
-      students: 42,
+      students: ["John Doe", "Jane Smith", "Kevin Otieno"],
       schedule: "Mon & Wed 10:00 AM - 12:00 PM",
       status: "Ongoing",
     },
     {
       code: "APT305",
       title: "Database Systems",
-      students: 38,
+      students: ["Faith Kamau", "Brian Mwangi", "Esther Wanjiru"],
       schedule: "Tue & Thu 2:00 PM - 4:00 PM",
       status: "Ongoing",
     },
     {
       code: "APT309",
       title: "Artificial Intelligence",
-      students: 20,
+      students: ["Alice Wekesa", "Dennis Kiptoo"],
       schedule: "Fri 9:00 AM - 12:00 PM",
       status: "Upcoming",
     },
   ];
+
+  const handleViewStudents = (course) => {
+    navigate(`/student_list/${course.code}`, { state: { course } });
+  };
 
   return (
     <div className="dashboard">
@@ -48,6 +55,7 @@ function AssignedCourses() {
                   <th>Students Enrolled</th>
                   <th>Schedule</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,7 +64,7 @@ function AssignedCourses() {
                     <td>{course.code}</td>
                     <td>{course.title}</td>
                     <td>
-                      <FaUsers className="icon" /> {course.students}
+                      <FaUsers className="icon" /> {course.students.length}
                     </td>
                     <td>
                       <FaClock className="icon" /> {course.schedule}
@@ -71,6 +79,14 @@ function AssignedCourses() {
                       >
                         {course.status}
                       </span>
+                    </td>
+                    <td>
+                      <button
+                        className="view_btn"
+                        onClick={() => handleViewStudents(course)}
+                      >
+                        View Students
+                      </button>
                     </td>
                   </tr>
                 ))}
