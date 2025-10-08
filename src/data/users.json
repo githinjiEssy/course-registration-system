@@ -1,20 +1,25 @@
 {
-  "students": [
-    {
-      "firstName": "John",
-      "lastName": "Doe",
-      "idNumber": "APT123",
-      "email": "student@usiu.ac.ke",
-      "password": "12345",
-      "role": "student"
-    }
-  ],
+  "students": [],
   "lecturers": [
     {
       "firstName": "Peter",
       "lastName": "Kamau",
       "email": "lecturer@usiu.ac.ke",
       "password": "12345",
+      "role": "instructor"
+    },
+    {
+      "firstName": "Sarah",
+      "lastName": "Mwangi",
+      "email": "sarah.mwangi@usiu.ac.ke", 
+      "password": "admin123",
+      "role": "instructor"
+    },
+    {
+      "firstName": "James",
+      "lastName": "Omondi",
+      "email": "j.omondi@usiu.ac.ke",
+      "password": "lecturer123",
       "role": "instructor"
     }
   ]

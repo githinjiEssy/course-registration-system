@@ -7,15 +7,20 @@ import "react-toastify/dist/ReactToastify.css";
 function CourseRegistration() {
   // Sample course and lecturer data
   const courseOptions = [
-    "Web Application Development",
-    "Database Systems",
-    "Artificial Intelligence",
-    "Mobile Application Development",
-    "Computer Networks",
-    "Operating Systems",
+    { code: "APT301", title: "Web Application Development" },
+    { code: "APT302", title: "Database Systems" },
+    { code: "APT303", title: "Artificial Intelligence" },
+    { code: "APT304", title: "Mobile Application Development" },
+    { code: "APT305", title: "Computer Networks" },
+    { code: "APT306", title: "Operating Systems" },
   ];
 
-  const lecturerOptions = ["Dr. Kamau", "Dr. Mutua", "Dr. Wanjiru", "Prof. Ouma"];
+  const lecturerOptions = [
+    { name: "Dr. Kamau", img: "https://randomuser.me/api/portraits/men/32.jpg" },
+    { name: "Dr. Mutua", img: "https://randomuser.me/api/portraits/men/56.jpg" },
+    { name: "Dr. Wanjiru", img: "https://randomuser.me/api/portraits/women/40.jpg" },
+    { name: "Prof. Ouma", img: "https://randomuser.me/api/portraits/men/70.jpg" },
+  ];
 
   // State for 5 course selections
   const [registrations, setRegistrations] = useState([
@@ -25,6 +30,9 @@ function CourseRegistration() {
     { course: "", lecturer: "" },
     { course: "", lecturer: "" },
   ]);
+
+  // Get current user
+  const currentUser = JSON.parse(localStorage.getItem("user"));
 
   // Handle selection change
   const handleChange = (index, field, value) => {
@@ -37,7 +45,20 @@ function CourseRegistration() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const selectedCourses = registrations.filter((r) => r.course && r.lecturer);
+    const selectedCourses = registrations
+      .filter((r) => r.course && r.lecturer)
+      .map(reg => {
+        const course = courseOptions.find(c => c.title === reg.course);
+        const lecturer = lecturerOptions.find(l => l.name === reg.lecturer);
+        return {
+          code: course?.code || "N/A",
+          title: reg.course,
+          lecturer: reg.lecturer,
+          lecturerImg: lecturer?.img || "https://randomuser.me/api/portraits/men/1.jpg",
+          status: "Active",
+          registrationDate: new Date().toISOString()
+        };
+      });
 
     if (selectedCourses.length === 0) {
       toast.error("⚠️ Please select at least one course and lecturer.", {
@@ -46,8 +67,17 @@ function CourseRegistration() {
       return;
     }
 
+    // Save to localStorage
+    const studentCourses = JSON.parse(localStorage.getItem("studentCourses")) || {};
+    studentCourses[currentUser.email] = [
+      ...(studentCourses[currentUser.email] || []),
+      ...selectedCourses
+    ];
+    localStorage.setItem("studentCourses", JSON.stringify(studentCourses));
+
     toast.success("✅ Registration submitted successfully!", {
       position: "top-center",
+      onClose: () => window.location.href = "/my_courses"
     });
 
     console.log("Registered Courses:", selectedCourses);
@@ -79,8 +109,8 @@ function CourseRegistration() {
                         >
                           <option value="">Select Course</option>
                           {courseOptions.map((course, i) => (
-                            <option key={i} value={course}>
-                              {course}
+                            <option key={i} value={course.title}>
+                              {course.code} - {course.title}
                             </option>
                           ))}
                         </select>
@@ -96,8 +126,8 @@ function CourseRegistration() {
                         >
                           <option value="">Select Lecturer</option>
                           {lecturerOptions.map((lect, i) => (
-                            <option key={i} value={lect}>
-                              {lect}
+                            <option key={i} value={lect.name}>
+                              {lect.name}
                             </option>
                           ))}
                         </select>
@@ -138,13 +168,13 @@ function CourseRegistration() {
                 </h3>
                 <div className="student_info_grid">
                   <div className="info_row">
-                    <strong>Full Name:</strong> John Doe
+                    <strong>Full Name:</strong> {currentUser?.firstName} {currentUser?.lastName}
                   </div>
                   <div className="info_row">
-                    <strong>ID Number:</strong> 12345
+                    <strong>ID Number:</strong> {currentUser?.idNumber}
                   </div>
                   <div className="info_row">
-                    <strong>Email:</strong> john.doe@usiu.ac.ke
+                    <strong>Email:</strong> {currentUser?.email}
                   </div>
                 </div>
               </div>

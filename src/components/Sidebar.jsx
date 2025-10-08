@@ -57,9 +57,6 @@ function Sidebar({ role }) {
                             <li className='list_item'><a href="/assigned_courses"><ImBooks/>Assigned Courses</a></li>
                         </>
                     )}
-
-                    {/* Common links for both roles */}
-                    <li className='list_item'><a href="/profile"><CgProfile/>Profile</a></li>
                     
                     {/* Logout with proper event handling */}
                     <li className='list_item'>

@@ -34,7 +34,7 @@ function App() {
         <Route path='/my_courses' element={<MyCourses />} />
         <Route path='/lecturer_course_registration' element={<LecturerCourseRegistration/>} />
         <Route path='/assigned_courses' element={<AssignedCourses/>} />
-        <Route path='/student_list/:course_id' element={<StudentList/>}/>
+        <Route path="/student_list/:courseId" element={<StudentList />} />
       </Routes>
     </BrowserRouter>
   )
