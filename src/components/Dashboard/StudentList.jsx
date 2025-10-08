@@ -8,27 +8,11 @@ function StudentList() {
   const { state } = useLocation();
   const navigate = useNavigate();
   
-  console.log("StudentList params:", { courseId, state });
+  console.log("StudentList - Course ID:", courseId);
+  console.log("StudentList - State:", state);
   
-  // Get course data from state or try to load from localStorage as fallback
+  // Get course data from state
   let course = state?.course;
-
-  // Fallback: If no course in state, try to load from localStorage
-  if (!course && courseId) {
-    const lecturer = JSON.parse(localStorage.getItem("user"));
-    const lecturerCourses = JSON.parse(localStorage.getItem("lecturerCourses")) || {};
-    const myCourses = lecturerCourses[lecturer?.email] || [];
-    course = myCourses.find(c => c.code === courseId);
-    
-    // If still no course, try to create a basic course object
-    if (!course) {
-      course = {
-        code: courseId,
-        title: `Course ${courseId}`,
-        students: []
-      };
-    }
-  }
 
   if (!course) {
     return (
@@ -37,7 +21,8 @@ function StudentList() {
           <Sidebar role="instructor" />
           <div className="error_page">
             <h2>⚠️ Course data not found</h2>
-            <p>Course ID: {courseId}</p>
+            <p>No course data was passed to this page.</p>
+            <p>Course ID from URL: {courseId}</p>
             <button onClick={() => navigate("/assigned_courses")} className="back_btn">
               <FaArrowLeft /> Back to Courses
             </button>
@@ -72,6 +57,10 @@ function StudentList() {
             </div>
           ) : (
             <div className="student_table">
+              <div style={{ marginBottom: '10px', padding: '10px', background: '#f0f8ff', borderRadius: '5px' }}>
+                <strong>Debug Info:</strong> Showing {course.students.length} students for {course.code}
+              </div>
+              
               <table>
                 <thead>
                   <tr>
