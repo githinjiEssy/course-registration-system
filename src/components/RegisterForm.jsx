@@ -18,63 +18,48 @@ function RegisterForm() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // ✅ Basic validation
         if (!formData.firstName || !formData.lastName || !formData.idNumber || !formData.email || !formData.password) {
             toast.error("Please fill in all fields");
             return;
         }
 
-        // ✅ Validate USIU email
-        if (!formData.email.endsWith('@usiu.ac.ke')) {
+        if (!formData.email.endsWith("@usiu.ac.ke")) {
             toast.error("Please use your USIU email address (@usiu.ac.ke)");
             return;
         }
 
-        // ✅ Get existing students from localStorage
-        const students = JSON.parse(localStorage.getItem("students")) || [];
+        try {
+            const response = await fetch("http://localhost:5000/students/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+            });
 
-        // ✅ Check duplicate email
-        if (students.some((student) => student.email === formData.email)) {
-            toast.error("Email already registered");
-            return;
+            const data = await response.json();
+
+            if (response.ok) {
+            toast.success("Registration successful!", {
+                autoClose: 1500,
+                onClose: () => navigate("/login"),
+            });
+            setFormData({
+                firstName: "",
+                lastName: "",
+                idNumber: "",
+                email: "",
+                password: "",
+            });
+            } else {
+            toast.error(data.message || "Registration failed");
+            }
+        } catch (error) {
+            toast.error("Server error. Please try again later.");
         }
-
-        // ✅ Check duplicate ID number
-        if (students.some((student) => student.idNumber === formData.idNumber)) {
-            toast.error("ID Number already registered");
-            return;
-        }
-
-        // ✅ Save new student to localStorage
-        const newStudent = {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            idNumber: formData.idNumber,
-            email: formData.email,
-            password: formData.password,
-            role: "student",
-        };
-
-        students.push(newStudent);
-        localStorage.setItem("students", JSON.stringify(students));
-
-        toast.success("Registration Successful!", {
-            autoClose: 1500,
-            onClose: () => navigate("/login"),
-        });
-
-        // Reset form
-        setFormData({
-            firstName: "",
-            lastName: "",
-            idNumber: "",
-            email: "",
-            password: "",
-        });
     };
+
 
     return (
         <AuthLayout
