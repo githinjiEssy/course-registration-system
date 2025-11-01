@@ -4,19 +4,30 @@ import { FaChalkboardTeacher } from "react-icons/fa";
 import { MdGroups } from "react-icons/md";
 import { MdOutlineAppRegistration } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function InstructorDashboard() {
   const [user, setUser] = useState(null);
   const [assignedCourses, setAssignedCourses] = useState([]);
-  const [studentCounts, setStudentCounts] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get logged-in user from localStorage
     const loggedInUser = JSON.parse(localStorage.getItem("user"));
     
+    // Enhanced validation
     if (!loggedInUser) {
+      console.log("❌ No user found in localStorage");
       navigate("/login");
+      return;
+    }
+
+    // Validate user object structure
+    if (!loggedInUser._id || typeof loggedInUser._id !== 'string') {
+      console.error("❌ Invalid user ID:", loggedInUser._id);
+      setError("Invalid user data. Please log in again.");
+      setLoading(false);
       return;
     }
 
@@ -25,35 +36,94 @@ function InstructorDashboard() {
       return;
     }
 
+    console.log("✅ User loaded:", { id: loggedInUser._id, name: loggedInUser.firstName });
     setUser(loggedInUser);
 
-    // Load assigned courses for this lecturer
-    const lecturerCourses = JSON.parse(localStorage.getItem("lecturerCourses")) || {};
-    const myCourses = lecturerCourses[loggedInUser.email] || [];
-
-    // Calculate student counts
-    const studentCourses = JSON.parse(localStorage.getItem("studentCourses")) || {};
-    const courseStudentCounts = {};
-
-    Object.values(studentCourses).forEach(studentCourseList => {
-      studentCourseList.forEach(course => {
-        if (myCourses.some(c => c.title === course.title)) {
-          courseStudentCounts[course.title] = (courseStudentCounts[course.title] || 0) + 1;
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Double-check the user ID before making the request
+        if (!loggedInUser._id || loggedInUser._id === 'undefined') {
+          throw new Error("Invalid user ID");
         }
-      });
-    });
 
-    setAssignedCourses(myCourses);
-    setStudentCounts(courseStudentCounts);
+        console.log("🔍 Fetching courses for instructor ID:", loggedInUser._id);
+        
+        const res = await axios.get(
+          `http://localhost:5000/instructors/${loggedInUser._id}/assigned-courses`
+        );
+        
+        console.log("✅ Courses fetched successfully:", res.data?.length || 0);
+        setAssignedCourses(res.data || []);
+      } catch (error) {
+        console.error("❌ Error fetching assigned courses:", error);
+        setError(`Failed to load assigned courses: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
   }, [navigate]);
 
-  if (!user) {
+  // ✅ Compute totals after data is loaded
+  const totalCourses = assignedCourses.length;
+  const totalStudents = assignedCourses.reduce(
+    (sum, course) => sum + (course.enrolledStudents?.length || 0),
+    0
+  );
+
+  // Calculate pending approvals
+  const pendingApprovals = assignedCourses.reduce(
+    (sum, course) => sum + (course.pendingApprovals || 0),
+    0
+  );
+
+  if (loading) {
     return (
-      <div className="loading">
-        <p>Loading...</p>
+      <div className="dashboard">
+        <div className="dashboard_container">
+          <Sidebar role="instructor" />
+          <div className="instructor_dashboard_main">
+            <div className="loading-container">
+              <p>Loading your dashboard...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard_container">
+          <Sidebar role="instructor" />
+          <div className="instructor_dashboard_main">
+            <div className="error-message">
+              <h3>Error Loading Dashboard</h3>
+              <p>{error}</p>
+              <div className="error-actions">
+                <button onClick={() => window.location.reload()} className="retry-btn">
+                  Try Again
+                </button>
+                <button onClick={() => {
+                  localStorage.removeItem("user");
+                  navigate("/login");
+                }} className="logout-btn">
+                  Log Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="dashboard">
@@ -68,7 +138,7 @@ function InstructorDashboard() {
             <div className="stat_card">
               <FaChalkboardTeacher className="icon" />
               <div>
-                <h3>{assignedCourses.length}</h3>
+                <h3>{totalCourses}</h3>
                 <p>Courses Teaching</p>
               </div>
             </div>
@@ -76,9 +146,7 @@ function InstructorDashboard() {
             <div className="stat_card">
               <MdGroups className="icon" />
               <div>
-                <h3>
-                  {Object.values(studentCounts).reduce((a, b) => a + b, 0)}
-                </h3>
+                <h3>{totalStudents}</h3>
                 <p>Total Students</p>
               </div>
             </div>
@@ -86,7 +154,7 @@ function InstructorDashboard() {
             <div className="stat_card">
               <MdOutlineAppRegistration className="icon" />
               <div>
-                <h3>3</h3>
+                <h3>{pendingApprovals}</h3>
                 <p>Pending Approvals</p>
               </div>
             </div>
@@ -97,7 +165,7 @@ function InstructorDashboard() {
             {assignedCourses.length === 0 ? (
               <div className="empty_state">
                 <p>No courses assigned yet.</p>
-                <a href="/lecturer_register_courses" className="quick_btn">
+                <a href="/lecturer_course_registration" className="quick_btn">
                   Register Courses
                 </a>
               </div>
@@ -105,16 +173,26 @@ function InstructorDashboard() {
               <table>
                 <thead>
                   <tr>
-                    <th>Course Name</th>
+                    <th>Course Title</th>
+                    <th>Code</th>
                     <th>Students Enrolled</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {assignedCourses.map((course, i) => (
-                    <tr key={i}>
-                      {/* FIX: Make sure you're rendering course.title, not the course object */}
-                      <td>{course.title || course.name || "Unnamed Course"}</td>
-                      <td>{studentCounts[course.title] || 0}</td>
+                  {assignedCourses.map((course) => (
+                    <tr key={course._id}>
+                      <td>{course.title}</td>
+                      <td>{course.code}</td>
+                      <td>{course.enrolledStudents?.length || 0}</td>
+                      <td>
+                        <button
+                          className="view_btn"
+                          onClick={() => navigate(`/student_list/${course._id}`)}
+                        >
+                          View Students
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -123,11 +201,8 @@ function InstructorDashboard() {
           </div>
 
           <div className="quick_links">
-            <a href="/lecturer_register_courses" className="quick_btn">
+            <a href="/lecturer_course_registration" className="quick_btn">
               Register Courses
-            </a>
-            <a href="/student_list" className="quick_btn">
-              View Student List
             </a>
           </div>
         </div>
