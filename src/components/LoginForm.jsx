@@ -25,7 +25,7 @@ function LoginForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!formData.role) {
@@ -33,42 +33,47 @@ function LoginForm() {
       return;
     }
 
-    let foundUser = null;
+    try {
+      let url = "";
+      if (formData.role === "student") {
+        url = "http://localhost:5000/students/login";
+      } else if (formData.role === "instructor") {
+        url = "http://localhost:5000/instructors/login";
+      }
 
-    if (formData.role === "student") {
-      // ✅ Check students from localStorage
-      const students = JSON.parse(localStorage.getItem("students")) || [];
-      foundUser = students.find(
-        (student) =>
-          student.email.toLowerCase() === formData.email.toLowerCase() &&
-          student.password === formData.password
-      );
-    } else {
-      // ✅ Check lecturers from JSON file
-      foundUser = usersData.lecturers.find(
-        (lecturer) =>
-          lecturer.email.toLowerCase() === formData.email.toLowerCase() &&
-          lecturer.password === formData.password
-      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || "Invalid credentials", { position: "top-center" });
+        return;
+      }
+
+      // ✅ Save logged in user
+      localStorage.setItem("user", JSON.stringify(data.student || data.instructor));
+
+      toast.success(`Welcome ${data.student?.name || data.instructor?.name}!`, {
+        position: "top-center",
+        autoClose: 1500,
+      });
+
+      setTimeout(() => {
+        navigate(formData.role === "student" ? "/student" : "/instructor");
+      }, 1500);
+
+    } catch (err) {
+      toast.error("Server error. Please try again later.", { position: "top-center" });
     }
-
-    if (!foundUser) {
-      toast.error("⚠️ Invalid email or password.", { position: "top-center" });
-      return;
-    }
-
-    // ✅ Save logged in user
-    localStorage.setItem("user", JSON.stringify(foundUser));
-
-    toast.success(`Welcome ${foundUser.firstName}!`, {
-      position: "top-center",
-      autoClose: 2000,
-    });
-
-    setTimeout(() => {
-      navigate(foundUser.role === "student" ? "/student" : "/instructor");
-    }, 2000);
   };
+
 
   return (
     <AuthLayout

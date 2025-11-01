@@ -14,13 +14,13 @@ import AssignedCourses from './components/Dashboard/assignedCourse'
 import StudentList from './components/Dashboard/StudentList'
 
 function App() {
-  useEffect(() => {
-    const existing = JSON.parse(localStorage.getItem("users"));
-    if (!existing) {
-      localStorage.setItem("users", JSON.stringify(usersData));
-      console.log("Initialized users from users.json");
-    }
-  }, []);
+  // useEffect(() => {
+  //   const existing = JSON.parse(localStorage.getItem("users"));
+  //   if (!existing) {
+  //     localStorage.setItem("users", JSON.stringify(usersData));
+  //     console.log("Initialized users from users.json");
+  //   }
+  // }, []);
 
   return (
     <BrowserRouter>
