@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function MyCourses() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // ✅ Fetch logged-in user and their registered courses from backend
   useEffect(() => {
-    // Get current user and their courses
     const user = JSON.parse(localStorage.getItem("user"));
-    const studentCourses = JSON.parse(localStorage.getItem("studentCourses")) || {};
-    
     setCurrentUser(user);
-    
-    if (user && studentCourses[user.email]) {
-      setCourses(studentCourses[user.email]);
+
+    if (user && user._id) {
+      fetchCourses(user._id);
     } else {
-      // If no courses found, show empty state
-      setCourses([]);
+      setLoading(false);
     }
   }, []);
+
+  const fetchCourses = async (studentId) => {
+    try {
+      const res = await axios.get(`http://localhost:5000/students/${studentId}/my-courses`);
+      setCourses(res.data.registeredCourses || []);
+    } catch (error) {
+      console.error("❌ Error fetching courses:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusBadge = (status) => {
     const badgeStyles = {
@@ -44,23 +54,24 @@ function MyCourses() {
     navigate("/course_registration");
   };
 
-  const handleDropCourse = (courseCode) => {
+  const handleDropCourse = async (courseId) => {
+    if (!currentUser) return;
+
     if (window.confirm("Are you sure you want to drop this course?")) {
-      const studentCourses = JSON.parse(localStorage.getItem("studentCourses")) || {};
-      if (currentUser && studentCourses[currentUser.email]) {
-        const updatedCourses = studentCourses[currentUser.email].map(course =>
-          course.code === courseCode ? { ...course, status: "Dropped" } : course
-        );
-        studentCourses[currentUser.email] = updatedCourses;
-        localStorage.setItem("studentCourses", JSON.stringify(studentCourses));
-        setCourses(updatedCourses);
+      try {
+        await axios.put(`http://localhost:5000/students/${currentUser._id}/drop-course`, {
+          courseId,
+        });
+        alert("✅ Course dropped successfully");
+        fetchCourses(currentUser._id);
+      } catch (error) {
+        console.error("❌ Error dropping course:", error);
+        alert("Failed to drop course");
       }
     }
   };
 
-  if (!currentUser) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="dashboard">
@@ -100,27 +111,22 @@ function MyCourses() {
                       <td>
                         <div className="course_info">
                           <div>
-                            <h4>{course.title}</h4>
-                            <p>{course.code}</p>
+                            <h4>{course.courseTitle}</h4>
+                            <p>{course.courseCode}</p>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <div className="lecturer_info flex items-center gap-3">
-                          <img
-                            src={course.lecturerImg}
-                            alt={course.lecturer}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                          <span>{course.lecturer}</span>
-                        </div>
+                        <span>
+                          {course.lecturerName || "N/A"}
+                        </span>
                       </td>
-                      <td>{getStatusBadge(course.status)}</td>
+                      <td>{getStatusBadge(course.status || "Active")}</td>
                       <td>
-                        {course.status === "Active" && (
+                        {course.status !== "Dropped" && (
                           <button
                             className="drop_btn"
-                            onClick={() => handleDropCourse(course.code)}
+                            onClick={() => handleDropCourse(course.courseId)}
                           >
                             Drop
                           </button>
