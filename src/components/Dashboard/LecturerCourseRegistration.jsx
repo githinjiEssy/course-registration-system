@@ -1,85 +1,103 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function LecturerCourseRegistration() {
-  const courseOptions = [
-    { code: "APT301", title: "Web Application Development" },
-    { code: "APT302", title: "Database Systems" },
-    { code: "APT303", title: "Artificial Intelligence" },
-    { code: "APT304", title: "Mobile Application Development" },
-    { code: "APT305", title: "Computer Networks" },
-    { code: "APT306", title: "Operating Systems" }
-  ];
-
+  const [availableCourses, setAvailableCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const maxCourses = 3;
   const navigate = useNavigate();
 
   // Get current lecturer
   const currentLecturer = JSON.parse(localStorage.getItem("user"));
 
+  // Fetch available courses from backend
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("http://localhost:5000/courses/all-courses");
+        
+        if (Array.isArray(res.data)) {
+          setAvailableCourses(res.data);
+        } else {
+          setAvailableCourses([]);
+          toast.info("No courses available for registration.");
+        }
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        toast.error("Failed to load courses");
+        setAvailableCourses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
   const handleCourseChange = (course) => {
-    if (selectedCourses.some(c => c.code === course.code)) {
-      setSelectedCourses(selectedCourses.filter((c) => c.code !== course.code));
+    if (selectedCourses.some(c => c._id === course._id)) {
+      setSelectedCourses(selectedCourses.filter((c) => c._id !== course._id));
     } else {
       if (selectedCourses.length >= maxCourses) {
-        toast.error(`⚠️ You can only teach up to ${maxCourses} courses.`, {
-          position: "top-center",
-        });
+        toast.error(`⚠️ You can only teach up to ${maxCourses} courses.`);
         return;
       }
       setSelectedCourses([...selectedCourses, course]);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (selectedCourses.length === 0) {
-      toast.error("Please select at least one course to teach.", {
-        position: "top-center",
-      });
+      toast.error("Please select at least one course to teach.");
       return;
     }
 
-    // Save lecturer courses to localStorage
-    const lecturerCourses = JSON.parse(localStorage.getItem("lecturerCourses")) || {};
-    lecturerCourses[currentLecturer.email] = selectedCourses.map(course => ({
-      ...course,
-      lecturer: `${currentLecturer.firstName} ${currentLecturer.lastName}`,
-      lecturerEmail: currentLecturer.email,
-      status: "Ongoing",
-      schedule: generateSchedule(), // You can make this dynamic
-      registrationDate: new Date().toISOString()
-    }));
+    try {
+      // Register lecturer for selected courses
+      const response = await axios.post("http://localhost:5000/instructors/register-courses", {
+        instructorId: currentLecturer._id,
+        courseIds: selectedCourses.map(course => course._id)
+      });
 
-    localStorage.setItem("lecturerCourses", JSON.stringify(lecturerCourses));
+      toast.success("✅ Courses registered successfully!", {
+        onClose: () => navigate("/instructor")
+      });
 
-    toast.success("✅ Courses registered successfully!", {
-      position: "top-center",
-      onClose: () => navigate("/assigned_courses")
-    });
+      console.log("Courses registration response:", response.data);
 
-    console.log("Lecturer registered courses:", selectedCourses);
+    } catch (error) {
+      console.error("Error registering courses:", error);
+      if (error.response?.data?.message) {
+        toast.error(`❌ ${error.response.data.message}`);
+      } else {
+        toast.error("❌ Failed to register courses. Please try again.");
+      }
+    }
   };
 
-  // Helper function to generate random schedule
-  const generateSchedule = () => {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-    const times = [
-      "9:00 AM - 11:00 AM",
-      "10:00 AM - 12:00 PM", 
-      "2:00 PM - 4:00 PM",
-      "3:00 PM - 5:00 PM"
-    ];
-    const randomDay = days[Math.floor(Math.random() * days.length)];
-    const randomTime = times[Math.floor(Math.random() * times.length)];
-    return `${randomDay} ${randomTime}`;
-  };
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard_container">
+          <Sidebar role="instructor" />
+          <div className="lecturer_course_main">
+            <div className="loading-container">
+              <p>Loading available courses...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
@@ -92,21 +110,33 @@ function LecturerCourseRegistration() {
 
           <form className="lecturer_form" onSubmit={handleSubmit}>
             <div className="checkbox_group">
-              {courseOptions.map((course, index) => (
-                <label key={index} className="checkbox_item">
-                  <input
-                    type="checkbox"
-                    checked={selectedCourses.some(c => c.code === course.code)}
-                    onChange={() => handleCourseChange(course)}
-                  />
-                  <span className="course_info">
-                    <strong>{course.code}</strong> - {course.title}
-                  </span>
-                </label>
-              ))}
+              {availableCourses.length === 0 ? (
+                <p className="no-courses">No courses available for registration.</p>
+              ) : (
+                availableCourses.map((course) => (
+                  <label key={course._id} className="checkbox_item">
+                    <input
+                      type="checkbox"
+                      checked={selectedCourses.some(c => c._id === course._id)}
+                      onChange={() => handleCourseChange(course)}
+                      disabled={course.instructors && course.instructors.length > 0}
+                    />
+                    <span className="course_info">
+                      <strong>{course.code}</strong> - {course.title}
+                      {course.instructors && course.instructors.length > 0 && (
+                        <span className="assigned-badge">(Already assigned)</span>
+                      )}
+                    </span>
+                  </label>
+                ))
+              )}
             </div>
 
-            <button type="submit" className="register_btn">Submit Courses</button>
+            {availableCourses.length > 0 && (
+              <button type="submit" className="register_btn" disabled={selectedCourses.length === 0}>
+                Submit Courses
+              </button>
+            )}
           </form>
 
           <div className="summary_section">

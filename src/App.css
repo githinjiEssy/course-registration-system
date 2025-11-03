@@ -1021,6 +1021,10 @@ span[class*="bg-"] {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 }
 
+.registration_summary{
+  color: #000000;
+}
+
 .summary_section h3 {
   color: #9a231b;
   font-size: 1.2rem;
@@ -1264,4 +1268,35 @@ span[class*="bg-"] {
 
 .logout-btn:hover {
   background: #854d0e;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.no-courses {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 1rem;
+}
+
+.assigned-badge {
+  background: #f39c12;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.checkbox_item input:disabled + .course_info {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register_btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
 }

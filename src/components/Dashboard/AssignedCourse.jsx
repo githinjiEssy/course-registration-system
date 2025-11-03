@@ -7,110 +7,64 @@ function AssignedCourses() {
   const navigate = useNavigate();
   const [assignedCourses, setAssignedCourses] = useState([]);
   const [currentLecturer, setCurrentLecturer] = useState(null);
-  const [useDummyData, setUseDummyData] = useState(false);
 
   useEffect(() => {
-    // Get current lecturer
-    const lecturer = JSON.parse(localStorage.getItem("user"));
-    setCurrentLecturer(lecturer);
+    const fetchAssignedCourses = async () => {
+      const lecturer = JSON.parse(localStorage.getItem("user"));
+      setCurrentLecturer(lecturer);
 
-    if (lecturer) {
-      // Load assigned courses for this lecturer
-      const lecturerCourses = JSON.parse(localStorage.getItem("lecturerCourses")) || {};
-      const myCourses = lecturerCourses[lecturer.email] || [];
-      
-      if (myCourses.length === 0 || useDummyData) {
-        // Use dummy data for testing
-        console.log("Using dummy data for testing");
-        const dummyCourses = [
-          {
-            code: "APT301",
-            title: "Web Application Development",
+      if (!lecturer || lecturer.role !== "instructor") return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/instructors/${lecturer._id}/assigned-courses`);
+        const data = await res.json();
+
+        console.log("📊 Raw assigned courses data:", data);
+
+        if (res.ok && Array.isArray(data)) {
+          // ✅ PRESERVE THE _id FIELD
+          const formattedCourses = data.map(course => ({
+            _id: course._id, // ✅ This is the crucial line you're missing!
+            code: course.code,
+            title: course.title,
+            status: "Ongoing",
             schedule: "Mon & Wed 10:00 AM - 12:00 PM",
-            status: "Ongoing",
-            studentCount: 5,
-            students: [
-              "John Doe", 
-              "Jane Smith", 
-              "Kevin Otieno", 
-              "Faith Kamau", 
-              "Brian Mwangi"
-            ]
-          },
-          {
-            code: "APT302",
-            title: "Database Systems",
-            schedule: "Tue & Thu 2:00 PM - 4:00 PM",
-            status: "Ongoing",
-            studentCount: 3,
-            students: [
-              "Alice Wekesa", 
-              "Dennis Kiptoo", 
-              "Esther Wanjiru"
-            ]
-          },
-          {
-            code: "APT303",
-            title: "Artificial Intelligence",
-            schedule: "Fri 9:00 AM - 12:00 PM",
-            status: "Upcoming",
-            studentCount: 0,
-            students: []
-          }
-        ];
-        setAssignedCourses(dummyCourses);
-      } else {
-        // Use real data from localStorage
-        const studentCourses = JSON.parse(localStorage.getItem("studentCourses")) || {};
-        const allStudents = JSON.parse(localStorage.getItem("students")) || [];
-        
-        const coursesWithStudents = myCourses.map(course => {
-          const courseStudents = [];
+            studentCount: course.enrolledStudents?.length || 0,
+            students: course.enrolledStudents?.map(
+              s => `${s.firstName} ${s.lastName}`
+            ) || []
+          }));
 
-          // Find all students registered for this course
-          Object.entries(studentCourses).forEach(([studentEmail, courses]) => {
-            const courseRegistration = courses.find(c => 
-              c.title === course.title && c.status === "Active"
-            );
-            
-            if (courseRegistration) {
-              const student = allStudents.find(s => s.email === studentEmail);
-              if (student) {
-                courseStudents.push(`${student.firstName} ${student.lastName}`);
-              }
-            }
-          });
-
-          return {
-            ...course,
-            students: courseStudents,
-            studentCount: courseStudents.length
-          };
-        });
-
-        setAssignedCourses(coursesWithStudents);
+          console.log("✅ Formatted courses with IDs:", formattedCourses);
+          setAssignedCourses(formattedCourses);
+        } else {
+          console.log("❌ No courses found or invalid response");
+          setAssignedCourses([]);
+        }
+      } catch (error) {
+        console.error("Error fetching assigned courses:", error);
+        setAssignedCourses([]);
       }
-    }
-  }, [useDummyData]);
+    };
+
+    fetchAssignedCourses();
+  }, []);
 
   const handleViewStudents = (course) => {
-    console.log("Button clicked for course:", course);
-    console.log("Course code:", course.code);
+    console.log("🔍 View Students clicked for course:", course);
+    console.log("📝 Course ID:", course._id);
+    console.log("📝 Course Code:", course.code);
     
+    if (!course._id) {
+      console.error("❌ ERROR: Course _id is missing!");
+      alert("Error: Course ID is missing. Please check the console for details.");
+      return;
+    }
+
     // Navigate to StudentList with course data in state
-    navigate(`/student_list/${course.code}`, { 
+    navigate(`/student_list/${course._id}`, { 
       state: { course } 
     });
-  };
-
-  // Test navigation directly
-  const testNavigation = () => {
-    navigate('/student_list/APT301');
-  };
-
-  // Toggle between dummy and real data
-  const toggleData = () => {
-    setUseDummyData(!useDummyData);
   };
 
   if (!currentLecturer) {
@@ -132,20 +86,6 @@ function AssignedCourses() {
               <FaBookOpen /> Assigned Courses
             </h2>
             <p>Courses you are currently teaching</p>
-            
-            {/* Test buttons */}
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button 
-                onClick={toggleData} 
-                style={{ 
-                  background: useDummyData ? 'green' : 'blue', 
-                  color: 'white',
-                  padding: '8px 12px'
-                }}
-              >
-                {useDummyData ? 'Using Dummy Data' : 'Using Real Data'} - Click to Toggle
-              </button>
-            </div>
           </div>
 
           {assignedCourses.length === 0 ? (
@@ -161,9 +101,19 @@ function AssignedCourses() {
             </div>
           ) : (
             <div className="assigned_table">
-              <div style={{ marginBottom: '10px', padding: '10px', background: '#f0f8ff', borderRadius: '5px' }}>
-                <strong>Debug Info:</strong> Showing {assignedCourses.length} courses | 
-                Data Source: {useDummyData ? 'Dummy Data' : 'Real Data'}
+              <div style={{ 
+                marginBottom: '10px', 
+                padding: '10px', 
+                background: '#f0f8ff', 
+                borderRadius: '5px',
+                fontSize: '0.9rem'
+              }}>
+                <strong>Debug Info:</strong> Showing {assignedCourses.length} courses
+                {assignedCourses.length > 0 && (
+                  <div style={{ marginTop: '5px' }}>
+                    Course IDs: {assignedCourses.map(c => c._id).join(', ')}
+                  </div>
+                )}
               </div>
               
               <table>
@@ -179,8 +129,10 @@ function AssignedCourses() {
                 </thead>
                 <tbody>
                   {assignedCourses.map((course, index) => (
-                    <tr key={index}>
-                      <td>{course.code}</td>
+                    <tr key={course._id || index}>
+                      <td>
+                        {course.code}
+                      </td>
                       <td>{course.title}</td>
                       <td>
                         <FaUsers className="icon" /> {course.studentCount} students
@@ -211,6 +163,11 @@ function AssignedCourses() {
                         >
                           {course.studentCount === 0 ? 'No Students' : 'View Students'}
                         </button>
+                        {!course._id && (
+                          <div style={{ fontSize: '0.7rem', color: 'red', marginTop: '2px' }}>
+                            No ID!
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
